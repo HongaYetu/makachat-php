@@ -1,0 +1,23 @@
+{
+    "name": "hongayetu/makachat-php",
+    "description": "SDK MakaChat para serviços Laravel do ecossistema Honga Yetu: emissão de tokens, cliente s2s e assinatura de connectors",
+    "type": "library",
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "firebase/php-jwt": "^6.10",
+        "guzzlehttp/guzzle": "^7.8",
+        "illuminate/support": "^10.0|^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hongayetu\\MakaChat\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": ["Hongayetu\\MakaChat\\MakaChatServiceProvider"]
+        }
+    },
+    "minimum-stability": "stable"
+}
