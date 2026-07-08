@@ -16,8 +16,15 @@
     },
     "extra": {
         "laravel": {
-            "providers": ["Hongayetu\\MakaChat\\MakaChatServiceProvider"]
+            "providers": [
+                "Hongayetu\\MakaChat\\MakaChatServiceProvider"
+            ]
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "homepage": "https://github.com/HongaYetu/makachat-php",
+    "support": {
+        "source": "https://github.com/HongaYetu/makachat-php",
+        "issues": "https://github.com/HongaYetu/makachat-php/issues"
+    }
 }
