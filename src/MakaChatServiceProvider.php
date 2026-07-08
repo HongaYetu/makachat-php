@@ -39,7 +39,37 @@ class MakaChatServiceProvider extends ServiceProvider
                     $identidade['nome'],
                     $identidade['foto'] ?? null,
                     $identidade['honga_user_id'] ?? null,
+                    $identidade['metadados'] ?? null,
                 ));
+            });
+        });
+
+        /**
+         * Route::makachatAutorizacao('/makachat/autorizacao', MeuAutorizacaoResolver::class)
+         * — endpoint do conector `autorizacao` (estratégia http): o servidor MakaChat
+         * pergunta, com assinatura HMAC, se A pode contactar B.
+         */
+        Route::macro('makachatAutorizacao', function (string $uri, string $resolverClass) {
+            return Route::get($uri, function (Request $request) use ($resolverClass) {
+                if (! ConnectorSignature::verify($request)) {
+                    return response()->json(['permitido' => false, 'motivo' => 'Assinatura inválida'], 401);
+                }
+
+                /** @var AutorizacaoResolver $resolver */
+                $resolver = app($resolverClass);
+                $decisao = $resolver->resolve(
+                    ['tipo' => (string) $request->query('de_tipo'), 'id' => (string) $request->query('de_id')],
+                    ['tipo' => (string) $request->query('para_tipo'), 'id' => (string) $request->query('para_id')],
+                );
+
+                if (is_bool($decisao)) {
+                    return response()->json(['permitido' => $decisao]);
+                }
+
+                return response()->json([
+                    'permitido' => (bool) ($decisao['permitido'] ?? false),
+                    'motivo' => $decisao['motivo'] ?? null,
+                ]);
             });
         });
     }

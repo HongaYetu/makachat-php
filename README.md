@@ -36,6 +36,7 @@ class ClienteResolver implements \Hongayetu\MakaChat\IdentityResolver
             'nome' => $user->name,
             'foto' => $user->foto_link(),
             'honga_user_id' => $user->honga_user_id,
+            'metadados' => ['verificado' => $user->verificado],   // opcional: badge, username, ocultar_online...
         ] : null;
     }
 }
@@ -47,6 +48,26 @@ Route::middleware('auth:sanctum')->group(function () {
 ```
 
 As apps passam `getToken: () => req('/api/makachat/token')` ao `<MakaChatProvider>` e está feito.
+
+## Autorização de contacto (opcional)
+
+Quando o serviço tem bloqueios/privacidade, o chat pergunta antes de deixar A contactar B (estratégia http; a alternativa `postgres` configura-se na central com uma consulta SQL direta):
+
+```php
+// app/MakaChat/PodeContactarResolver.php
+class PodeContactarResolver implements \Hongayetu\MakaChat\AutorizacaoResolver
+{
+    public function resolve(array $de, array $para): bool|array
+    {
+        $bloqueado = Bloqueio::entre($de['id'], $para['id'])->exists();
+
+        return $bloqueado ? ['permitido' => false, 'motivo' => 'Não podes contactar este utilizador'] : true;
+    }
+}
+
+// routes/api.php (verificação HMAC incluída na macro)
+Route::makachatAutorizacao('/makachat/autorizacao', \App\MakaChat\PodeContactarResolver::class);
+```
 
 ## Context cards (opcional)
 
