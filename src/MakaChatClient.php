@@ -5,8 +5,8 @@ namespace Hongayetu\MakaChat;
 use GuzzleHttp\Client;
 
 /**
- * Cliente server-to-server (api_key) — depende dos endpoints /v1/s2s/* do
- * makachat-server (pendentes no servidor; ver plano M2/M5).
+ * Cliente server-to-server (api_key) para os endpoints /v1/s2s/* do makachat-server:
+ * conversas (criar/fechar/reabrir), mensagens de sistema e webhook de identidades.
  */
 class MakaChatClient
 {
@@ -33,12 +33,33 @@ class MakaChatClient
         return $this->post('/v1/s2s/conversas', $dados);
     }
 
-    public function mensagemSistema(string $conversaId, string $conteudo): array
+    /**
+     * @param array{modo: string, exceto?: array<int, array{id_externo: string, tipo: string}>}|null $naoLidas
+     *        conta como não lida: modo 'todos' ou 'excepto' (com a lista de excluídos)
+     * @param string|null $refCliente uuid determinístico para idempotência (retries não duplicam)
+     */
+    public function mensagemSistema(string $conversaId, string $conteudo, ?array $naoLidas = null, ?string $refCliente = null): array
     {
-        return $this->post('/v1/s2s/mensagens-sistema', [
+        return $this->post('/v1/s2s/mensagens-sistema', array_filter([
             'conversa_id' => $conversaId,
             'conteudo' => $conteudo,
-        ]);
+            'nao_lidas' => $naoLidas,
+            'ref_cliente' => $refCliente,
+        ], fn ($v) => $v !== null));
+    }
+
+    /** Fecha a conversa: histórico visível, envio bloqueado (o motivo aparece aos participantes). */
+    public function fecharConversa(string $conversaId, ?string $motivo = null): array
+    {
+        return $this->post('/v1/s2s/conversas/fechar', array_filter([
+            'conversa_id' => $conversaId,
+            'motivo' => $motivo,
+        ], fn ($v) => $v !== null));
+    }
+
+    public function reabrirConversa(string $conversaId): array
+    {
+        return $this->post('/v1/s2s/conversas/reabrir', ['conversa_id' => $conversaId]);
     }
 
     /**
