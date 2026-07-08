@@ -66,8 +66,38 @@ Route::get('/makachat/context/corrida/{id}', function (Request $request, $id) {
 });
 ```
 
-## S2S (opcional; requer endpoints /v1/s2s/* no servidor)
+## S2S (opcional)
+
+Autenticado com `MAKACHAT_API_KEY` (headers `X-Maka-Service` + `X-Maka-Api-Key`). O servidor também aceita, em alternativa, um JWT HS256 assinado com o `jwt_segredo` do serviço e claims `iss` + `s2s: true`.
 
 ```php
-app(\Hongayetu\MakaChat\MakaChatClient::class)->criarConversa([...]);
+$maka = app(\Hongayetu\MakaChat\MakaChatClient::class);
+
+// criar/obter conversa (ex.: cliente ↔ negócio com contexto de encomenda)
+$maka->criarConversa([
+    'tipo' => 'privada',
+    'participantes' => [
+        ['id_externo' => (string) $cliente->id, 'tipo' => 'cliente', 'nome' => $cliente->name],
+        ['id_externo' => (string) $negocio->id, 'tipo' => 'negocio', 'nome' => $negocio->nome],
+    ],
+    'contexto_tipo' => 'encomenda',
+    'contexto_id' => (string) $encomenda->id,
+]);
+
+// mensagem de sistema na conversa
+$maka->mensagemSistema($conversaId, "Encomenda #{$encomenda->codigo} — {$encomenda->estado}");
 ```
+
+## Webhook de identidades (opcional)
+
+Quando um perfil muda no serviço (nome, foto, dados extra), empurra a atualização em batch — o chat atualiza as identidades que já existem e **ignora as desconhecidas** (nascerão pelo login ou pela primeira conversa):
+
+```php
+// ex.: observer do Negocio
+$maka->atualizarIdentidades([
+    ['id_externo' => (string) $negocio->id, 'tipo' => 'negocio', 'nome' => $negocio->nome, 'foto' => $negocio->logo_url],
+]);
+// → ['estado' => 'ok', 'atualizadas' => 1, 'ignoradas' => 0]
+```
+
+Alternativa sem webhook: configurar no painel da central a **estratégia de resolução Postgres** do serviço (consulta SQL por tipo de identidade, TTL configurável) — o servidor refresca nome/foto diretamente da base do serviço nas leituras.
