@@ -41,6 +41,19 @@ class MakaChatClient
         ]);
     }
 
+    /**
+     * Webhook de identidades (batch): empurra nome/foto/metadados quando o
+     * perfil muda no serviço. Atualiza as que existem no chat; as que não
+     * existem são ignoradas pelo servidor (podem ainda não ter conversas).
+     *
+     * @param array<int, array{id_externo: string, tipo: string, nome?: string, foto?: ?string, metadados?: array<string, mixed>}> $identidades
+     * @return array{estado: string, atualizadas: int, ignoradas: int}
+     */
+    public function atualizarIdentidades(array $identidades): array
+    {
+        return $this->post('/v1/s2s/identidades', ['identidades' => array_values($identidades)]);
+    }
+
     private function post(string $caminho, array $dados): array
     {
         $resposta = $this->http->post($caminho, ['json' => $dados]);
