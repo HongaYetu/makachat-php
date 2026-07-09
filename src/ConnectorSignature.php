@@ -1,20 +1,20 @@
 <?php
 
-namespace Hongayetu\MakaChat;
+namespace Hongayetu\HongaHub;
 
 use Illuminate\Http\Request;
 
 class ConnectorSignature
 {
     /**
-     * Verifica a assinatura HMAC dos pedidos do MakaChat aos endpoints de
+     * Verifica a assinatura HMAC dos pedidos do Honga Hub aos endpoints de
      * contexto do serviço (X-Maka-Timestamp + X-Maka-Signature).
      */
     public static function verify(Request $request, int $toleranciaSegundos = 300): bool
     {
         $timestamp = (string) $request->header('X-Maka-Timestamp');
         $assinatura = (string) $request->header('X-Maka-Signature');
-        $segredo = (string) config('makachat.conector_segredo');
+        $segredo = (string) config('honga-hub.conector_segredo');
 
         if ($timestamp === '' || $assinatura === '' || $segredo === '') {
             return false;

@@ -1,24 +1,24 @@
 <?php
 
-namespace Hongayetu\MakaChat;
+namespace Hongayetu\HongaHub;
 
 use GuzzleHttp\Client;
 
 /**
- * Cliente server-to-server (api_key) para os endpoints /v1/s2s/* do makachat-server:
+ * Cliente server-to-server (api_key) para os endpoints /v1/s2s/* do Honga Hub:
  * conversas (criar/fechar/reabrir), mensagens de sistema e webhook de identidades.
  */
-class MakaChatClient
+class HongaHubClient
 {
     private Client $http;
 
     public function __construct()
     {
         $this->http = new Client([
-            'base_uri' => rtrim((string) config('makachat.api_url'), '/'),
+            'base_uri' => rtrim((string) config('honga-hub.api_url'), '/'),
             'headers' => [
-                'X-Maka-Service' => (string) config('makachat.chave_servico'),
-                'X-Maka-Api-Key' => (string) config('makachat.api_key'),
+                'X-Maka-Service' => (string) config('honga-hub.chave_servico'),
+                'X-Maka-Api-Key' => (string) config('honga-hub.api_key'),
                 'Accept' => 'application/json',
             ],
             'timeout' => 10,

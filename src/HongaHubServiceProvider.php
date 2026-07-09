@@ -1,29 +1,29 @@
 <?php
 
-namespace Hongayetu\MakaChat;
+namespace Hongayetu\HongaHub;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
-class MakaChatServiceProvider extends ServiceProvider
+class HongaHubServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/makachat.php', 'makachat');
+        $this->mergeConfigFrom(__DIR__.'/../config/honga-hub.php', 'honga-hub');
         $this->app->singleton(TokenIssuer::class);
-        $this->app->singleton(MakaChatClient::class);
+        $this->app->singleton(HongaHubClient::class);
     }
 
     public function boot(): void
     {
-        $this->publishes([__DIR__.'/../config/makachat.php' => config_path('makachat.php')], 'makachat-config');
+        $this->publishes([__DIR__.'/../config/honga-hub.php' => config_path('honga-hub.php')], 'honga-hub-config');
 
         /**
-         * Route::makachatToken('/api/makachat/token', MeuIdentityResolver::class)
+         * Route::hubToken('/hub/token', MeuIdentityResolver::class)
          * — regista o endpoint de troca de sessão por token de chat.
          */
-        Route::macro('makachatToken', function (string $uri, string $resolverClass) {
+        Route::macro('hubToken', function (string $uri, string $resolverClass) {
             return Route::post($uri, function (Request $request) use ($resolverClass) {
                 /** @var IdentityResolver $resolver */
                 $resolver = app($resolverClass);
@@ -45,11 +45,11 @@ class MakaChatServiceProvider extends ServiceProvider
         });
 
         /**
-         * Route::makachatAutorizacao('/makachat/autorizacao', MeuAutorizacaoResolver::class)
-         * — endpoint do conector `autorizacao` (estratégia http): o servidor MakaChat
+         * Route::hubAutorizacao('/hub/autorizacao', MeuAutorizacaoResolver::class)
+         * — endpoint do conector `autorizacao` (estratégia http): o Honga Hub
          * pergunta, com assinatura HMAC, se A pode contactar B.
          */
-        Route::macro('makachatAutorizacao', function (string $uri, string $resolverClass) {
+        Route::macro('hubAutorizacao', function (string $uri, string $resolverClass) {
             return Route::get($uri, function (Request $request) use ($resolverClass) {
                 if (! ConnectorSignature::verify($request)) {
                     return response()->json(['permitido' => false, 'motivo' => 'Assinatura inválida'], 401);

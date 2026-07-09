@@ -1,6 +1,6 @@
 <?php
 
-namespace Hongayetu\MakaChat;
+namespace Hongayetu\HongaHub;
 
 use Illuminate\Http\Request;
 

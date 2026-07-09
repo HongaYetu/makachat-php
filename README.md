@@ -1,30 +1,30 @@
-# hongayetu/makachat-php
+# hongayetu/honga-hub-php
 
-SDK MakaChat para os serviços Laravel do ecossistema (Humbi, Escola Inteligente, Socia, Kanda...). Não depende do auth-sdk — o chat é ortogonal ao SSO.
+SDK Laravel do **Honga Hub** (plataforma central de tempo-real e media): emissão de tokens de sessão, cliente s2s (chat/streaming), **barramento de eventos** e assinatura de conectores. Serve todos os serviços do ecossistema (Humbi, Escola Inteligente, Socia, Kanda...). Não depende do auth-sdk.
 
 ## Instalação
 
 ```bash
-composer require hongayetu/makachat-php
-php artisan vendor:publish --tag=makachat-config
+composer require hongayetu/honga-hub-php
+php artisan vendor:publish --tag=honga-hub-config
 ```
 
-`.env` do serviço (valores gerados no painel MakaChat da central):
+`.env` do serviço (valores gerados no painel do Honga Hub):
 
 ```
-MAKACHAT_CHAVE_SERVICO=humbi
-MAKACHAT_JWT_SEGREDO=...
-MAKACHAT_API_URL=https://makachat.hongayetu.com
-MAKACHAT_SOCKET_URL=https://makachat.hongayetu.com
-MAKACHAT_CONECTOR_SEGREDO=...   # se o serviço expõe context cards
-MAKACHAT_API_KEY=...            # se o serviço usa s2s
+HONGAHUB_CHAVE_SERVICO=humbi
+HONGAHUB_JWT_SEGREDO=...
+HONGAHUB_API_URL=https://hub.hongayetu.com
+HONGAHUB_SOCKET_URL=https://hub.hongayetu.com
+HONGAHUB_CONECTOR_SEGREDO=...   # se o serviço expõe context cards
+HONGAHUB_API_KEY=...            # se o serviço usa s2s
 ```
 
 ## Endpoint de token (o único passo obrigatório)
 
 ```php
 // app/MakaChat/ClienteResolver.php
-class ClienteResolver implements \Hongayetu\MakaChat\IdentityResolver
+class ClienteResolver implements \Hongayetu\HongaHub\IdentityResolver
 {
     public function resolve(Request $request): ?array
     {
@@ -43,7 +43,7 @@ class ClienteResolver implements \Hongayetu\MakaChat\IdentityResolver
 
 // routes/api.php
 Route::middleware('auth:sanctum')->group(function () {
-    Route::makachatToken('/makachat/token', \App\MakaChat\ClienteResolver::class);
+    Route::hubToken('/makachat/token', \App\MakaChat\ClienteResolver::class);
 });
 ```
 
@@ -55,7 +55,7 @@ Quando o serviço tem bloqueios/privacidade, o chat pergunta antes de deixar A c
 
 ```php
 // app/MakaChat/PodeContactarResolver.php
-class PodeContactarResolver implements \Hongayetu\MakaChat\AutorizacaoResolver
+class PodeContactarResolver implements \Hongayetu\HongaHub\AutorizacaoResolver
 {
     public function resolve(array $de, array $para): bool|array
     {
@@ -66,14 +66,14 @@ class PodeContactarResolver implements \Hongayetu\MakaChat\AutorizacaoResolver
 }
 
 // routes/api.php (verificação HMAC incluída na macro)
-Route::makachatAutorizacao('/makachat/autorizacao', \App\MakaChat\PodeContactarResolver::class);
+Route::hubAutorizacao('/makachat/autorizacao', \App\MakaChat\PodeContactarResolver::class);
 ```
 
 ## Context cards (opcional)
 
 ```php
 Route::get('/makachat/context/corrida/{id}', function (Request $request, $id) {
-    abort_unless(\Hongayetu\MakaChat\ConnectorSignature::verify($request), 401);
+    abort_unless(\Hongayetu\HongaHub\ConnectorSignature::verify($request), 401);
 
     $corrida = Corrida::findOrFail($id);
 
@@ -89,10 +89,10 @@ Route::get('/makachat/context/corrida/{id}', function (Request $request, $id) {
 
 ## S2S (opcional)
 
-Autenticado com `MAKACHAT_API_KEY` (headers `X-Maka-Service` + `X-Maka-Api-Key`). O servidor também aceita, em alternativa, um JWT HS256 assinado com o `jwt_segredo` do serviço e claims `iss` + `s2s: true`.
+Autenticado com `HONGAHUB_API_KEY` (headers `X-Maka-Service` + `X-Maka-Api-Key`). O servidor também aceita, em alternativa, um JWT HS256 assinado com o `jwt_segredo` do serviço e claims `iss` + `s2s: true`.
 
 ```php
-$maka = app(\Hongayetu\MakaChat\MakaChatClient::class);
+$maka = app(\Hongayetu\HongaHub\HongaHubClient::class);
 
 // criar/obter conversa (ex.: cliente ↔ negócio com contexto de encomenda)
 $maka->criarConversa([

@@ -1,6 +1,6 @@
 <?php
 
-namespace Hongayetu\MakaChat;
+namespace Hongayetu\HongaHub;
 
 use Firebase\JWT\JWT;
 use Illuminate\Support\Str;
@@ -9,7 +9,7 @@ class TokenIssuer
 {
     /**
      * Emite o JWT de sessão de chat (HS256, TTL curto) para a identidade do
-     * serviço. Ver PROTOCOL.md do makachat-server.
+     * serviço. Ver PROTOCOL.md do Honga Hub.
      */
     public function issue(
         string $externalId,
@@ -22,7 +22,7 @@ class TokenIssuer
         $agora = time();
 
         return JWT::encode(array_filter([
-            'iss' => config('makachat.chave_servico'),
+            'iss' => config('honga-hub.chave_servico'),
             'sub' => $externalId,
             'tipo' => $tipo,
             'nome' => $nome,
@@ -32,8 +32,8 @@ class TokenIssuer
             'metadados' => $metadados,
             'jti' => (string) Str::uuid(),
             'iat' => $agora,
-            'exp' => $agora + (int) config('makachat.token_ttl_segundos', 900),
-        ], fn ($v) => $v !== null), (string) config('makachat.jwt_segredo'), 'HS256');
+            'exp' => $agora + (int) config('honga-hub.token_ttl_segundos', 900),
+        ], fn ($v) => $v !== null), (string) config('honga-hub.jwt_segredo'), 'HS256');
     }
 
     /**
@@ -53,8 +53,8 @@ class TokenIssuer
         return [
             'estado' => 'ok',
             'token' => $this->issue($externalId, $tipo, $nome, $foto, $hongaUserId, $metadados),
-            'socket_url' => (string) config('makachat.socket_url'),
-            'api_url' => (string) config('makachat.api_url'),
+            'socket_url' => (string) config('honga-hub.socket_url'),
+            'api_url' => (string) config('honga-hub.api_url'),
         ];
     }
 }

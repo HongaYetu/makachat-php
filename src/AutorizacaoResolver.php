@@ -1,6 +1,6 @@
 <?php
 
-namespace Hongayetu\MakaChat;
+namespace Hongayetu\HongaHub;
 
 /**
  * Decide se `de` pode contactar `para` (bloqueios, privacidade, restrições).
