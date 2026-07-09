@@ -30,7 +30,7 @@ class HongaHubClient
      */
     public function criarConversa(array $dados): array
     {
-        return $this->post('/v1/s2s/conversas', $dados);
+        return $this->post('/v1/s2s/chat/conversas', $dados);
     }
 
     /**
@@ -40,7 +40,7 @@ class HongaHubClient
      */
     public function mensagemSistema(string $conversaId, string $conteudo, ?array $naoLidas = null, ?string $refCliente = null): array
     {
-        return $this->post('/v1/s2s/mensagens-sistema', array_filter([
+        return $this->post('/v1/s2s/chat/mensagens-sistema', array_filter([
             'conversa_id' => $conversaId,
             'conteudo' => $conteudo,
             'nao_lidas' => $naoLidas,
@@ -51,7 +51,7 @@ class HongaHubClient
     /** Fecha a conversa: histórico visível, envio bloqueado (o motivo aparece aos participantes). */
     public function fecharConversa(string $conversaId, ?string $motivo = null): array
     {
-        return $this->post('/v1/s2s/conversas/fechar', array_filter([
+        return $this->post('/v1/s2s/chat/conversas/fechar', array_filter([
             'conversa_id' => $conversaId,
             'motivo' => $motivo,
         ], fn ($v) => $v !== null));
@@ -59,7 +59,7 @@ class HongaHubClient
 
     public function reabrirConversa(string $conversaId): array
     {
-        return $this->post('/v1/s2s/conversas/reabrir', ['conversa_id' => $conversaId]);
+        return $this->post('/v1/s2s/chat/conversas/reabrir', ['conversa_id' => $conversaId]);
     }
 
     /**
