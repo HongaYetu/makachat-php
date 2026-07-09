@@ -75,6 +75,23 @@ class MakaChatClient
         return $this->post('/v1/s2s/identidades', ['identidades' => array_values($identidades)]);
     }
 
+    /**
+     * Barramento de eventos do Honga Hub: empurra um evento para os clientes
+     * ligados (fan-out). Alternativa HTTP ao Redis pub/sub — para a via rápida
+     * publica diretamente em `hub:emit:{chave_servico}` com o teu Redis.
+     *
+     * @param array{tipo: string, ids?: array<int, string>} $alvo
+     */
+    public function emitirEvento(array $alvo, string $evento, mixed $payload = null, ?string $namespace = null): array
+    {
+        return $this->post('/v1/eventos/emitir', array_filter([
+            'alvo' => $alvo,
+            'evento' => $evento,
+            'payload' => $payload,
+            'namespace' => $namespace,
+        ], fn ($v) => $v !== null));
+    }
+
     private function post(string $caminho, array $dados): array
     {
         $resposta = $this->http->post($caminho, ['json' => $dados]);
