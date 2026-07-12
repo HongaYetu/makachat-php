@@ -76,6 +76,19 @@ class HongaHubClient
     }
 
     /**
+     * Presença em lote: estado das ligações ao chat para os alvos indicados
+     * (máx. 200 por chamada). O serviço decide QUEM perguntar (o grafo social
+     * é dele); identidades com `metadados.ocultar_online` vêm sempre offline.
+     *
+     * @param array<int, array{id_externo: string, tipo: string}> $alvos
+     * @return array{estado: string, presencas: array<int, array{id_externo: string, tipo: string, online: bool, ultimo_visto_em: ?string}>}
+     */
+    public function presencaLote(array $alvos): array
+    {
+        return $this->post('/v1/s2s/presenca/lote', ['alvos' => array_values($alvos)]);
+    }
+
+    /**
      * Barramento de eventos do Honga Hub: empurra um evento para os clientes
      * ligados (fan-out). Alternativa HTTP ao Redis pub/sub — para a via rápida
      * publica diretamente em `hub:emit:{chave_servico}` com o teu Redis.
