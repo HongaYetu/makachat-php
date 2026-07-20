@@ -63,6 +63,20 @@ class HongaHubClient
     }
 
     /**
+     * Fecha TODAS as conversas de um contexto (histórico visível, envio
+     * bloqueado). Útil quando o serviço não guarda os conversa_id e trabalha
+     * por contexto (ex.: sócia concluída → grupo + 1:1 read-only). Idempotente.
+     */
+    public function fecharPorContexto(string $contextoTipo, string $contextoId, ?string $motivo = null): array
+    {
+        return $this->post('/v1/s2s/chat/conversas/fechar-por-contexto', array_filter([
+            'contexto_tipo' => $contextoTipo,
+            'contexto_id' => $contextoId,
+            'motivo' => $motivo,
+        ], fn ($v) => $v !== null));
+    }
+
+    /**
      * Webhook de identidades (batch): empurra nome/foto/metadados quando o
      * perfil muda no serviço. Atualiza as que existem no chat; as que não
      * existem são ignoradas pelo servidor (podem ainda não ter conversas).
