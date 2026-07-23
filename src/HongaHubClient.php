@@ -48,6 +48,40 @@ class HongaHubClient
         ], fn ($v) => $v !== null));
     }
 
+    /**
+     * Mensagem NORMAL autorada por uma identidade do serviço (ex.: um bot com
+     * nome/avatar próprios) — distinta de mensagemSistema (autor "Sistema"). A
+     * identidade tem de ser participante da conversa.
+     *
+     * @param  array{id_externo: string, tipo: string, nome: string, foto?: string|null}  $remetente
+     * @param  array{modo: string, exceto?: array<int, array{id_externo: string, tipo: string}>}|null  $naoLidas
+     */
+    public function mensagem(string $conversaId, array $remetente, string $conteudo, ?array $naoLidas = null, ?string $refCliente = null): array
+    {
+        return $this->post('/v1/s2s/chat/mensagens', array_filter([
+            'conversa_id' => $conversaId,
+            'remetente' => $remetente,
+            'conteudo' => $conteudo,
+            'nao_lidas' => $naoLidas,
+            'ref_cliente' => $refCliente,
+        ], fn ($v) => $v !== null));
+    }
+
+    /**
+     * Marca a conversa como LIDA em nome de uma identidade do serviço (ex.: um bot
+     * sempre disponível como o Agente Silva), fazendo o outro participante ver o
+     * "visto". A identidade tem de ser participante da conversa.
+     *
+     * @param  array{id_externo: string, tipo: string}  $remetente
+     */
+    public function marcarLida(string $conversaId, array $remetente): array
+    {
+        return $this->post('/v1/s2s/chat/marcar-lida', [
+            'conversa_id' => $conversaId,
+            'remetente' => $remetente,
+        ]);
+    }
+
     /** Fecha a conversa: histórico visível, envio bloqueado (o motivo aparece aos participantes). */
     public function fecharConversa(string $conversaId, ?string $motivo = null): array
     {
